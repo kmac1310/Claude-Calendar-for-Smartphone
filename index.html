@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024 Calendar Clock</title>
+    <style>
+        body {
+            background-color: black;
+            color: yellow;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #clock {
+            position: relative;
+            width: 90vw;
+            height: 90vw;
+            max-width: 500px;
+            max-height: 500px;
+            border-radius: 50%;
+            border: 2px solid yellow;
+        }
+        .month {
+            position: absolute;
+            font-size: 2.5vw;
+            transform-origin: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 2vw;
+        }
+        #center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 2.5vw;
+            width: 80%;
+        }
+        #date-display {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4vw;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 1vw 2vw;
+        }
+        #year-display {
+            position: absolute;
+            top: -8vw;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4vw;
+        }
+        #time-display {
+            position: absolute;
+            top: 2vw;
+            right: 2vw;
+            font-size: 3vw;
+        }
+        #day-hand {
+            position: absolute;
+            width: 0.4vw;
+            height: 40%;
+            background-color: red;
+            top: 10%;
+            left: 50%;
+            transform-origin: bottom center;
+            transition: transform 0.1s linear;
+        }
+        @media (min-width: 500px) {
+            .month { font-size: 12px; padding-top: 10px; }
+            #center-text { font-size: 12px; }
+            #date-display { font-size: 20px; padding: 5px 10px; }
+            #year-display { font-size: 20px; top: -40px; }
+            #time-display { font-size: 15px; top: 10px; right: 10px; }
+            #day-hand { width: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="clock">
+        <div id="year-display">2024 Calendar Clock</div>
+        <div id="time-display"></div>
+        <div id="center-text"></div>
+        <div id="date-display"></div>
+        <div id="day-hand"></div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+            const minutesLeftInYear = Math.floor((endOfYear - now) / 60000);
+            const daysLeftInYear = Math.ceil((endOfYear - now) / (1000 * 60 * 60 * 24));
+            const minutesLeftToday = Math.floor((endOfDay - now) / 60000);
+
+            document.getElementById('center-text').innerHTML = `
+                ${minutesLeftInYear} <br> Minutes left in the year <br><br>
+                ${daysLeftInYear} <br> Days left in the year <br><br>
+                ${minutesLeftToday} <br> Minutes left today
+            `;
+
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('date-display').textContent = `${months[now.getMonth()]} ${now.getDate()}`;
+
+            // Update day hand continuously (24-hour cycle)
+            const millisInDay = now.getHours() * 3600000 + now.getMinutes() * 60000 + now.getSeconds() * 1000 + now.getMilliseconds();
+            const rotation = (millisInDay / (24 * 60 * 60 * 1000)) * 360;
+            document.getElementById('day-hand').style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+
+            // Update time display
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('time-display').textContent = timeString;
+
+            // Highlight current month
+            const monthElements = document.querySelectorAll('.month');
+            monthElements.forEach((element, index) => {
+                if (index === now.getMonth()) {
+                    element.style.color = 'red';
+                } else {
+                    element.style.color = 'yellow';
+                }
+            });
+        }
+
+        function createClockFace() {
+            const clock = document.getElementById('clock');
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            months.forEach((month, index) => {
+                const monthElement = document.createElement('div');
+                monthElement.className = 'month';
+                monthElement.textContent = month;
+                monthElement.style.transform = `rotate(${index * 30}deg)`;
+                clock.appendChild(monthElement);
+            });
+        }
+
+        createClockFace();
+        updateClock();
+        setInterval(updateClock, 50); // Update every 50 milliseconds for smooth movement
+    </script>
+</body>
+</html>
